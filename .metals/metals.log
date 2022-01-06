@@ -44077,3 +44077,5 @@ file%3A%2F%2F%2Fhome%2Frunner%2FAOCDayEightteen%2Fmain.scala:48: error: illegal 
 	at scala.meta.internal.semanticdb.scalac.TextDocumentOps$XtensionCompilationUnitDocument.toTextDocument(TextDocumentOps.scala:201)
 	at scala.meta.internal.pc.SemanticdbTextDocumentProvider.textDocument(SemanticdbTextDocumentProvider.scala:51)
 
+something's wrong: no file:///home/runner/AOCDayEightteen/main.scala in Array[Char]RangePosition(file:///home/runner/AOCDayEightteen/main.scala, 527, 527, 538)
+something's wrong: no file:///home/runner/AOCDayEightteen/main.scala in Array[Char]RangePosition(file:///home/runner/AOCDayEightteen/main.scala, 527, 527, 538)
