@@ -9,22 +9,17 @@ object Main {
 
         println
 
-        println("Before")
-        for (sfn <- snailFishNumbers)
-            println(sfn.pretty())
-
-        println
+        val pairs = for(x <- snailFishNumbers; y <- snailFishNumbers) yield (x, y)
         
-        val result = snailFishNumbers.reduceLeft(addReduce)
-        
-        println
+        def findMagnitude(tup: (SnailFishNumber, SnailFishNumber)): Long = magnitude(addReduce(tup._1, tup._2))
+        def findMagnitudes(tup: (SnailFishNumber, SnailFishNumber)): Seq[Long] = {
+            if (tup._1 == tup._2) 
+                Seq()
+            else 
+                Seq(findMagnitude(tup._1, tup._2), findMagnitude(tup._2, tup._1))
+        }
 
-        println("After")
-        println(result.pretty())
-
-        println
-
-        println(s"Magnitude ${magnitude(result)}")
+        println(s"Magnitude max ${pairs.flatMap(findMagnitudes).max}")
     }
 
     def addReduce(left: SnailFishNumber, right: SnailFishNumber): SnailFishNumber = {
