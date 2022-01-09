@@ -2,7 +2,7 @@ import scala.io.Source
 
 object Main {
     def main(args: Array[String]): Unit = {
-        val lines = Source.fromFile("Example4.txt").getLines.toList
+        val lines = Source.fromFile("Input.txt").getLines.toList
         println(s"Lines count: ${lines.size}")
 
         val snailFishNumbers = lines.map(parse)
@@ -16,26 +16,20 @@ object Main {
         println
         
         val result = snailFishNumbers.reduceLeft(addReduce)
-
+        
         println
 
         println("After")
         println(result.pretty())
+
+        println
+
+        println(s"Magnitude ${magnitude(result)}")
     }
 
     def addReduce(left: SnailFishNumber, right: SnailFishNumber): SnailFishNumber = {
-        println("  Adding")
-        println(s"    ${left.pretty()}")
-        println(s"    ${right.pretty()}")
-                
         val sum = add(left, right)
-        var reduced = reduce(sum)
-
-        println("  Result")
-        println(s"    ${reduced.pretty()}")
-        println
-
-        reduced
+        reduce(sum)
     }
 
     def parse(line: String): SnailFishNumber = {
@@ -53,8 +47,9 @@ object Main {
         }
     }
 
-    def add(left: SnailFishNumber, right: SnailFishNumber): SnailFishNumber = 
+    def add(left: SnailFishNumber, right: SnailFishNumber): SnailFishNumber = {
         P(left, right)
+    }
 
     def reduce(num: SnailFishNumber): SnailFishNumber = {
         var curr = num
@@ -70,25 +65,23 @@ object Main {
 
     def reduceOnce(num: SnailFishNumber): SnailFishNumber = { 
         var (sfn, exploded) = explode(num, 0, false)
-
-        // println(s"Exploded ${exploded}")
-
-        if (exploded)
+    
+        if (exploded) 
             addExploded(sfn)
-        else
-            split(sfn)
+        else 
+            split(sfn, false)._1
     }
     
     def explode(num: SnailFishNumber, pairDepth: Int, exploded: Boolean): (SnailFishNumber, Boolean) = {
         num match {
-            case P(P(N(vLeft), N(vRight)), pRight) => 
+            case P(P(N(vLeft), N(vRight)), pRight) if (!exploded) => 
                 if (pairDepth >= 3) {
                     (P(E(vLeft, vRight), pRight), true)
                 } else {
                     val (explodeRight, explodedRight) = explode(pRight, pairDepth + 1, exploded)
                     (P(P(N(vLeft), N(vRight)), explodeRight), explodedRight)
                 }
-            case P(pLeft, P(N(vLeft), N(vRight))) => 
+            case P(pLeft, P(N(vLeft), N(vRight))) if (!exploded) => 
                 if (pairDepth >= 3) {
                     (P(pLeft, E(vLeft, vRight)), true)
                 } else {
@@ -136,17 +129,26 @@ object Main {
         }
     }
 
-    def split(num: SnailFishNumber): SnailFishNumber = {
+    def split(num: SnailFishNumber, splitted: Boolean): (SnailFishNumber, Boolean) = {
         num match {
-            case N(v) if v > 9 => {
+            case N(v) if v > 9 && !splitted => {
                 val half = v.toDouble / 2
 
-                // println(s"Splitting $v to ${math.floor(half).toInt} and ${math.ceil(half).toInt}")
-
-                P(N(math.floor(half).toInt), N(math.ceil(half).toInt))
+                (P(N(math.floor(half).toInt), N(math.ceil(half).toInt)), true)
             }
-            case N(v) => N(v)
-            case P(left, right) => P(split(left), split(right))
+            case N(v) => (N(v), splitted)
+            case P(left, right) => {
+                val (splitLeft, splittedLeft) = split(left, splitted)
+                val (splitRight, splittedRight) = split(right, splittedLeft)
+                (P(splitLeft, splitRight), splittedRight) 
+            }
+        }
+    }
+
+    def magnitude(num: SnailFishNumber): Long = {
+        num match {
+            case N(v) => v.toLong
+            case P(left, right) => 3L * magnitude(left) + 2L * magnitude(right)
         }
     }
 }
@@ -164,6 +166,3 @@ case class N(val num: Int) extends SnailFishNumber {
 case class E(val addLeft: Int, val addRight: Int) extends SnailFishNumber {
     def pretty(): String = "E"
 }
-
-
-
